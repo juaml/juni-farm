@@ -167,16 +167,14 @@ class HCPCATConfounds(PatternDataladDataGrabber):
             subject=subject, task=new_task, phase_encoding=new_phase_encoding
         )
         out["BOLD_confounds"] = {
-            "BOLD_confounds": {
-                "path": (
-                    "sub-{subject}/sub-{subject}_task-{task}"
-                    "{phase_encoding}_desc-confounds_timeseries.tsv"
-                ),
-                "format": "adhoc",
-                "mappings": {
-                    "fmriprep": get_cat_to_fmriprep_mapping(),
-                },
-            }
+            "path": (
+                "sub-{subject}/sub-{subject}_task-{task}"
+                "{phase_encoding}_desc-confounds_timeseries.tsv"
+            ),
+            "format": "adhoc",
+            "mappings": {
+                "fmriprep": get_cat_to_fmriprep_mapping(),
+            },
         }
         return out
 
