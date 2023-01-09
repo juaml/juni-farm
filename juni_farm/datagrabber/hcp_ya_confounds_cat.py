@@ -166,14 +166,24 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         out = super().get_item(
             subject=subject, task=new_task, phase_encoding=new_phase_encoding
         )
+        out["BOLD_confounds"] = {
+            "BOLD_confounds": {
+                "path": (
+                    "sub-{subject}/sub-{subject}_task-{task}"
+                    "{phase_encoding}_desc-confounds_timeseries.tsv"
+                ),
+                "format": "adhoc",
+                "mappings": {
+                    "fmriprep": get_cat_to_fmriprep_mapping(),
+                },
+            }
+        }
         return out
 
 
 # test
 if __name__ == "__main__":
 
-    mappings = {"fmriprep": get_cat_to_fmriprep_mapping()}
-    
     with HCPCATConfounds() as hcp_conf:
         all_elements = hcp_conf.get_elements()
 
@@ -182,5 +192,4 @@ if __name__ == "__main__":
         for element in all_elements:
             print(element)
             out = hcp_conf[element]
-            out["BOLD_confounds"]["mappings"] = mappings
             print(out)
