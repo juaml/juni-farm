@@ -5,6 +5,7 @@
 
 from pathlib import Path
 from typing import Dict, List, Union
+from itertools import product
 
 from junifer.utils import raise_error
 from junifer.api.decorators import register_datagrabber
@@ -112,7 +113,7 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         # The patterns
         patterns = {
             "BOLD_confounds": (
-                "sub-{subject}/sub-{subject}_task-{task}"
+                "{subject}/{subject}_task-{task}"
                 "{phase_encoding}_desc-confounds_timeseries.tsv"
             )
         }
@@ -157,26 +158,36 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         """
         # Resting task
         if "REST" in task:
-            new_task = f"rfMRI_{task}"
+            new_task = f"rfMRI{task}"
             new_phase_encoding = f"{phase_encoding}hp2000clean"
         else:
-            new_task = f"tfMRI_{task}"
+            new_task = f"tfMRI{task}"
             new_phase_encoding = phase_encoding
 
         out = super().get_item(
             subject=subject, task=new_task, phase_encoding=new_phase_encoding
         )
-        out["BOLD_confounds"] = {
-            "path": (
-                "sub-{subject}/sub-{subject}_task-{task}"
-                "{phase_encoding}_desc-confounds_timeseries.tsv"
-            ),
-            "format": "adhoc",
-            "mappings": {
-                "fmriprep": get_cat_to_fmriprep_mapping(),
-            },
+        out["BOLD_confounds"]["mappings"] = {
+            "fmriprep": get_cat_to_fmriprep_mapping(),
         }
         return out
+
+    def get_elements(self) -> List:
+        """Implement fetching list of elements in the dataset.
+
+        Returns
+        -------
+        list
+            The list of elements in the dataset.
+        """
+        subjects = [x.name for x in self.datadir.iterdir() if x.is_dir()]
+        elems = []
+        for subject, task, phase_encoding in product(
+            subjects, self.tasks, self.phase_encodings
+        ):
+            elems.append((subject, task, phase_encoding))
+
+        return elems
 
 
 # test
