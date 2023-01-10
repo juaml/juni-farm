@@ -26,7 +26,7 @@ def get_cat_to_fmriprep_mapping():
     terms_cat = ["WM", "CSF", "GS"]
     terms_fmriprep = ["white_matter", "csf", "global_signal"]
 
-    mapping = {"FD": "framewise_displacement"}
+    mapping = {}
 
     for cat, fmriprep in zip(terms_cat, terms_fmriprep):
         mapping[cat] = fmriprep
