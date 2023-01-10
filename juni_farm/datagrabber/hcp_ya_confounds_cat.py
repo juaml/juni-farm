@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 from junifer.api.decorators import register_datagrabber
-from junifer.datagrabber import PatternDataladDataGrabber
+from junifer.datagrabber import (DataladHCP1200, MultipleDataGrabber,
+                                 PatternDataladDataGrabber)
 from junifer.utils import raise_error
 
 
@@ -196,10 +197,38 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         return elems
 
 
+@register_datagrabber
+class MultipleHCP(MultipleDataGrabber):
+    """Concrete implementation for original HCP data confounds.
+
+    Parameters
+    ----------
+    datadir : str or Path, optional
+        The directory where the datalad dataset will be cloned.
+    tasks : {"REST1", "REST2", "SOCIAL", "WM", "RELATIONAL", "EMOTION", \
+            "LANGUAGE", "GAMBLING", "MOTOR"} or list of the options, optional
+        HCP task sessions. If None, all available task sessions are selected
+        (default None).
+    phase_encodings : {"LR", "RL"} or list of the options, optional
+        HCP phase encoding directions. If None, both will be used
+        (default None).
+    **kwargs
+        Keyword arguments passed to superclass.
+
+    """
+
+    def __init__(self, **kwargs):
+        """Initialise class."""
+        super().__init__(
+            datagrabbers=[DataladHCP1200(**kwargs), HCPCATConfounds(**kwargs)],
+            **kwargs,
+        )
+
+
 # test
 if __name__ == "__main__":
 
-    with HCPCATConfounds() as hcp_conf:
+    with MultipleHCP(tasks="REST1") as hcp_conf:
         all_elements = hcp_conf.get_elements()
 
         # this will run over all elements, so use keyboard interrupt
