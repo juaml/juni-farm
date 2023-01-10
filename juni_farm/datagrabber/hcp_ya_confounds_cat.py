@@ -3,13 +3,13 @@
 # Authors: Leonard Sasse <l.sasse@fz-juelich.de>
 # License: AGPL
 
+from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
-from itertools import product
 
-from junifer.utils import raise_error
 from junifer.api.decorators import register_datagrabber
 from junifer.datagrabber import PatternDataladDataGrabber
+from junifer.utils import raise_error
 
 
 def get_cat_to_fmriprep_mapping():
@@ -113,7 +113,7 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         # The patterns
         patterns = {
             "BOLD_confounds": (
-                "{subject}/{subject}_task-{task}"
+                "sub-{subject}/sub-{subject}_task-{task}"
                 "{phase_encoding}_desc-confounds_timeseries.tsv"
             )
         }
@@ -180,7 +180,13 @@ class HCPCATConfounds(PatternDataladDataGrabber):
         list
             The list of elements in the dataset.
         """
-        subjects = [x.name for x in self.datadir.iterdir() if x.is_dir()]
+        # there are some .git folders in the dataset that will be picked up
+        # if we dont check whether "sub" is in name.
+        subjects = [
+            x.name.split("-")[1]
+            for x in self.datadir.iterdir()
+            if x.is_dir() and "sub" in x.name
+        ]
         elems = []
         for subject, task, phase_encoding in product(
             subjects, self.tasks, self.phase_encodings
