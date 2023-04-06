@@ -3,14 +3,13 @@
 # Authors: Leonard Sasse <l.sasse@fz-juelich.de>
 # License: AGPL
 
-from ptpython.ipython import embed
 from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
 
 from junifer.datagrabber.datalad_base import DataladDataGrabber
 from junifer.api.decorators import register_datagrabber
-from junifer.datagrabber import PatternDataGrabber, PatternDataladDataGrabber
+from junifer.datagrabber import PatternDataGrabber
 from junifer.utils import raise_error
 
 
@@ -81,7 +80,7 @@ class HCPAging(PatternDataGrabber):
         # Convert single phase encoding into list
         if isinstance(phase_encodings, str):
             phase_encodings = [phase_encodings]
-        
+
         # Check for invalid phase encoding(s)
         for pe in phase_encodings:
             if pe not in all_phase_encodings:
@@ -90,7 +89,7 @@ class HCPAging(PatternDataGrabber):
                     "Valid phase encoding can be any or all of "
                     f"{all_phase_encodings}."
                 )
-        
+
         self.phase_encodings = phase_encodings
 
         # The replacements
@@ -153,6 +152,11 @@ class HCPAging(PatternDataGrabber):
             )
         ]
 
+    @property
+    def skip_file_check(self) -> bool:
+        """Skip file check existence."""
+        return True
+
 
 @register_datagrabber
 class DataladHCPAging(DataladDataGrabber, HCPAging):
@@ -173,18 +177,19 @@ class DataladHCPAging(DataladDataGrabber, HCPAging):
         Keyword arguments passed to superclass.
 
     """
+
     def __init__(
         self,
         datadir: Union[str, Path, None] = None,
         tasks: Union[str, List[str], None] = None,
         phase_encodings: Union[str, List[str], None] = None,
     ) -> None:
-        
+        """Initialise the class."""
         uri = (
             "ria+http://hcp-a.ds.inm7.de"
             "#431e4eb7-72c3-423d-b402-84ede40c03a2"
         )
-        
+
         super().__init__(
             datadir=datadir,
             tasks=tasks,
@@ -192,8 +197,9 @@ class DataladHCPAging(DataladDataGrabber, HCPAging):
             uri=uri,
         )
 
+
 if __name__ == "__main__":
-    with DataladHCPAging() as dg:
+    with DataladHCPAging(datadir="/home/lsasse/test_synchon") as dg:
         elems = dg.get_elements()
-        embed()
         test_data = dg[elems[0]]
+        print(test_data)
