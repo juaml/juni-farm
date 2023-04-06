@@ -199,7 +199,7 @@ class DataladHCPAging(DataladDataGrabber, HCPAging):
 
 
 if __name__ == "__main__":
-    with DataladHCPAging(datadir="/home/lsasse/test_synchon") as dg:
+    with DataladHCPAging() as dg:
         elems = dg.get_elements()
         test_data = dg[elems[0]]
         print(test_data)
