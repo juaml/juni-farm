@@ -8,13 +8,14 @@ from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
 
+from junifer.datagrabber.datalad_base import DataladDataGrabber
 from junifer.api.decorators import register_datagrabber
-from junifer.datagrabber import PatternDataladDataGrabber
+from junifer.datagrabber import PatternDataGrabber, PatternDataladDataGrabber
 from junifer.utils import raise_error
 
 
 @register_datagrabber
-class HCPAging(PatternDataladDataGrabber):
+class HCPAging(PatternDataGrabber):
     """Concrete implementation for HCP Aging dataset.
 
     Parameters
@@ -23,10 +24,10 @@ class HCPAging(PatternDataladDataGrabber):
         The directory where the datalad dataset will be cloned.
     tasks : {"REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"}
         or list of the options, optional
-        HCP task sessions. If None, all available task sessions are selected
-        (default None).
+        HCP aging task sessions. If None, all available task sessions
+        are selected (default None).
     phase_encodings : {"AP", "PA"} or list of the options, optional
-        HCP phase encoding directions. If None, both will be used
+        HCP aging phase encoding directions. If None, both will be used
         (default None).
     **kwargs
         Keyword arguments passed to superclass.
@@ -94,14 +95,9 @@ class HCPAging(PatternDataladDataGrabber):
 
         # The replacements
         replacements = ["subject", "task", "phase_encoding"]
-        uri = (
-            "ria+http://hcp-a.ds.inm7.de"
-            "#431e4eb7-72c3-423d-b402-84ede40c03a2"
-        )
         super().__init__(
             types=types,
             datadir=datadir,
-            uri=uri,
             patterns=patterns,
             replacements=replacements,
             confounds_format="adhoc",
@@ -158,7 +154,46 @@ class HCPAging(PatternDataladDataGrabber):
         ]
 
 
+@register_datagrabber
+class DataladHCPAging(DataladDataGrabber, HCPAging):
+    """Concrete implementation for datalad-based HCP Aging dataset.
+
+    Parameters
+    ----------
+    datadir : str or Path, optional
+        The directory where the datalad dataset will be cloned.
+    tasks : {"REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"}
+        or list of the options, optional
+        HCP aging task sessions. If None, all available task sessions
+        are selected (default None).
+    phase_encodings : {"AP", "PA"} or list of the options, optional
+        HCP aging phase encoding directions. If None, both will be used
+        (default None).
+    **kwargs
+        Keyword arguments passed to superclass.
+
+    """
+    def __init__(
+        self,
+        datadir: Union[str, Path, None] = None,
+        tasks: Union[str, List[str], None] = None,
+        phase_encodings: Union[str, List[str], None] = None,
+    ) -> None:
+        
+        uri = (
+            "ria+http://hcp-a.ds.inm7.de"
+            "#431e4eb7-72c3-423d-b402-84ede40c03a2"
+        )
+        
+        super().__init__(
+            datadir=datadir,
+            tasks=tasks,
+            phase_encodings=phase_encodings,
+            uri=uri,
+        )
+
 if __name__ == "__main__":
-    with HCPAging() as dg:
+    with DataladHCPAging() as dg:
         elems = dg.get_elements()
+        embed()
         test_data = dg[elems[0]]
