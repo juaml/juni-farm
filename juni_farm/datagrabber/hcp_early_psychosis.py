@@ -3,7 +3,6 @@
 # Authors: Leonard Sasse <l.sasse@fz-juelich.de>
 # License: AGPL
 
-from ptpython.ipython import embed
 from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
