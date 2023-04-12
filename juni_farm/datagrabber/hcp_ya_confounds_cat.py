@@ -8,8 +8,11 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 from junifer.api.decorators import register_datagrabber
-from junifer.datagrabber import (DataladHCP1200, MultipleDataGrabber,
-                                 PatternDataladDataGrabber)
+from junifer.datagrabber import (
+    DataladHCP1200,
+    MultipleDataGrabber,
+    PatternDataladDataGrabber,
+)
 from junifer.utils import raise_error
 
 
@@ -31,6 +34,22 @@ def get_cat_to_fmriprep_mapping():
     for cat, fmriprep in zip(terms_cat, terms_fmriprep):
         mapping[cat] = fmriprep
         mapping[f"{cat}^2"] = f"{fmriprep}_power2"
+
+    # take care of motion parameters
+    # TODO: Felix' dataset uses rigid body parameters 1 to 6 but i am not sure
+    # which number (1-6) correspnds to translations and rotations (and x, y, z)
+    # respectively; for regular confound removal this should not matter
+    # because all confounds will be selected and used in the regression
+    # but will be good to have this implemented correctly anyways
+    motion_terms_fmriprep = ["rot", "trans"]
+    motion_directions = ["x", "y", "z"]
+    for i_iter, (term, direction) in enumerate(
+        product(motion_terms_fmriprep, motion_directions)
+    ):
+        mapping[f"RP.{i_iter}"] = f"{term}_{direction}"
+        mapping[f"RP^2.{i_iter}"] = f"{term}_{direction}_power2"
+        mapping[f"DRP.{i_iter}"] = f"{term}_{direction}_derivative1"
+        mapping[f"DRP^2.{i_iter}"] = f"{term}_{direction}_derivative1_power2"
 
     return mapping
 
@@ -227,7 +246,6 @@ class MultipleHCP(MultipleDataGrabber):
 
 # test
 if __name__ == "__main__":
-
     with MultipleHCP(tasks="REST1") as hcp_conf:
         all_elements = hcp_conf.get_elements()
 
