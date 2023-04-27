@@ -43,10 +43,10 @@ def get_cat_to_fmriprep_mapping():
     for i_iter, (term, direction) in enumerate(
         product(motion_terms_fmriprep, motion_directions)
     ):
-        mapping[f"RP.{i_iter}"] = f"{term}_{direction}"
-        mapping[f"RP^2.{i_iter}"] = f"{term}_{direction}_power2"
-        mapping[f"DRP.{i_iter}"] = f"{term}_{direction}_derivative1"
-        mapping[f"DRP^2.{i_iter}"] = f"{term}_{direction}_derivative1_power2"
+        mapping[f"RP.{i_iter+1}"] = f"{term}_{direction}"
+        mapping[f"RP^2.{i_iter+1}"] = f"{term}_{direction}_power2"
+        mapping[f"DRP.{i_iter+1}"] = f"{term}_{direction}_derivative1"
+        mapping[f"DRP^2.{i_iter+1}"] = f"{term}_{direction}_derivative1_power2"
 
     return mapping
 
