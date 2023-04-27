@@ -12,7 +12,43 @@ from junifer.api.decorators import register_datagrabber
 from junifer.datagrabber import PatternDataGrabber
 from junifer.utils import raise_error
 
-from hcp_ya_confounds_cat import get_cat_to_fmriprep_mapping
+
+def get_cat_to_fmriprep_mapping():
+    """Map variables in CAT output to fmriprep variables.
+
+    Returns
+    -------
+    dict
+        keys (CAT variables) and values (corresponding fMRIprep variables).
+
+    """
+    # overarching variables
+    terms_cat = ["WM", "CSF", "GS"]
+    terms_fmriprep = ["white_matter", "csf", "global_signal"]
+
+    mapping = {}
+
+    for cat, fmriprep in zip(terms_cat, terms_fmriprep):
+        mapping[cat] = fmriprep
+        mapping[f"{cat}^2"] = f"{fmriprep}_power2"
+
+    # take care of motion parameters
+    # TODO: Felix' dataset uses rigid body parameters 1 to 6 but i am not sure
+    # which number (1-6) correspnds to translations and rotations (and x, y, z)
+    # respectively; for regular confound removal this should not matter
+    # because all confounds will be selected and used in the regression
+    # but will be good to have this implemented correctly anyways
+    motion_terms_fmriprep = ["rot", "trans"]
+    motion_directions = ["x", "y", "z"]
+    for i_iter, (term, direction) in enumerate(
+        product(motion_terms_fmriprep, motion_directions)
+    ):
+        mapping[f"RP.{i_iter}"] = f"{term}_{direction}"
+        mapping[f"RP^2.{i_iter}"] = f"{term}_{direction}_power2"
+        mapping[f"DRP.{i_iter}"] = f"{term}_{direction}_derivative1"
+        mapping[f"DRP^2.{i_iter}"] = f"{term}_{direction}_derivative1_power2"
+
+    return mapping
 
 
 @register_datagrabber
@@ -189,7 +225,9 @@ class DataladHCPEarlyPsychosis(DataladDataGrabber, HCPEarlyPsychosis):
         phase_encodings: Union[str, List[str], None] = None,
     ) -> None:
         """Initialise the class."""
-        # there is also a jugit dataset that we can use
+        # there is also a jugit dataset that we can use, i currently dont have
+        # access rights to it, so i am using the path on juseless
+        # uri = "git@jugit.fz-juelich.de:inm7/hcp_earlypsychosis_preprocessed"
         uri = "/data/project/hcp_earlypsychosis_preprocessing"
         super().__init__(
             datadir=datadir,
