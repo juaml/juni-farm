@@ -25,8 +25,6 @@ class BCTPYSpheresEstimator:
     .. warning:: This class can only be used via :class:`.BCTPYSpheresBase` as
     it serves a specific purpose.
 
-    Parameters
-    ----------
     """
 
     def __init__(self) -> None:
@@ -55,7 +53,6 @@ class BCTPYSpheresEstimator:
         )
 
         return estimator.fit_transform()
-
 
     def fit_transform(
         self,
@@ -119,6 +116,9 @@ class BCTPYSpheresEstimator:
         # Compute
         return self._compute(
             data=bold_data,
+            coords=coords,
+            radius=radius,
+            allow_overlap=allow_overlap,
             agg_method=agg_method,
             agg_method_params=agg_method_params,
             cor_method=cor_method,
