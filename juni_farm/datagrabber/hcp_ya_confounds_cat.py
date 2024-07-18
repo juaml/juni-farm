@@ -6,6 +6,7 @@
 from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
+import warnings
 
 from junifer.api.decorators import register_datagrabber
 from junifer.datagrabber import (
@@ -130,13 +131,21 @@ class HCPCATConfounds(PatternDataladDataGrabber):
                 )
 
         # The types of data
-        types = ["BOLD_confounds"]
+        types = ["BOLD"]
         # The patterns
         patterns = {
-            "BOLD_confounds": (
-                "sub-{subject}/sub-{subject}_task-{task}"
-                "{phase_encoding}_desc-confounds_timeseries.tsv"
-            )
+            "BOLD": {
+                "confounds": {
+                    "pattern": (
+                        "sub-{subject}/sub-{subject}_task-{task}"
+                        "{phase_encoding}_desc-confounds_timeseries.tsv"
+                    ),
+                    "format": "adhoc",
+                    "mappings": {
+                        "fmriprep": get_cat_to_fmriprep_mapping(),
+                    },
+                },
+            },
         }
         # The replacements
         replacements = [
@@ -144,10 +153,7 @@ class HCPCATConfounds(PatternDataladDataGrabber):
             "task",
             "phase_encoding",
         ]
-        uri = (
-            "ria+file:///data/project/"
-            "cat_preprocessed/dataladstore#~HCP-YA_conf"
-        )
+        uri = "ria+file:///data/project/" "cat_preprocessed/dataladstore#~HCP-YA_conf"
         super().__init__(
             types=types,
             datadir=datadir,
@@ -155,6 +161,7 @@ class HCPCATConfounds(PatternDataladDataGrabber):
             patterns=patterns,
             replacements=replacements,
             confounds_format="adhoc",
+            **kwargs,
         )
         self.phase_encodings = phase_encodings
 
@@ -185,13 +192,9 @@ class HCPCATConfounds(PatternDataladDataGrabber):
             new_task = f"tfMRI{task}"
             new_phase_encoding = phase_encoding
 
-        out = super().get_item(
+        return super().get_item(
             subject=subject, task=new_task, phase_encoding=new_phase_encoding
         )
-        out["BOLD_confounds"]["mappings"] = {
-            "fmriprep": get_cat_to_fmriprep_mapping(),
-        }
-        return out
 
     def get_elements(self) -> List:
         """Implement fetching list of elements in the dataset.
@@ -274,7 +277,6 @@ class JuselessDataladHCP1200(DataladDataGrabber, HCP1200):
         return True
 
 
-
 @register_datagrabber
 class MultipleHCP(MultipleDataGrabber):
     """Concrete implementation for original HCP data confounds.
@@ -297,10 +299,16 @@ class MultipleHCP(MultipleDataGrabber):
 
     def __init__(self, **kwargs):
         """Initialise class."""
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", module="junifer.datagrabber.pattern_validation_mixin"
+            )
+
+            dg1 = JuselessDataladHCP1200(**kwargs)
+            kwargs["partial_pattern_ok"] = True
+            dg2 =  HCPCATConfounds(**kwargs)
         super().__init__(
-            datagrabbers=[
-                JuselessDataladHCP1200(**kwargs),
-                HCPCATConfounds(**kwargs)],
+            datagrabbers=[dg1, dg2],
             **kwargs,
         )
 
