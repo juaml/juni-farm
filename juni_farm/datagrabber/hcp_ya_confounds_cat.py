@@ -53,6 +53,9 @@ def get_cat_to_fmriprep_mapping():
         mapping[f"DRP.{i_iter+1}"] = f"{term}_{direction}_derivative1"
         mapping[f"DRP^2.{i_iter+1}"] = f"{term}_{direction}_derivative1_power2"
 
+    # Add spike
+    mapping.update({"FD": "framewise_displacement"})
+
     return mapping
 
 
