@@ -3,9 +3,9 @@ from typing import Dict, List
 import nibabel as nib
 import pandas as pd
 from hcp_ya_confounds_cat import MultipleHCP
-from junifer.pipeline import WorkDirManager
 
 from junifer.api.decorators import register_datagrabber
+from junifer.pipeline import WorkDirManager
 from junifer.utils import logger
 
 
