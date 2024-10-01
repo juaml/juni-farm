@@ -9,6 +9,18 @@ from junifer.pipeline import WorkDirManager
 from junifer.utils import logger
 
 
+def junifer_module_deps() -> List[str]:
+    """Return the dependencies of the module.
+
+    Returns
+    -------
+    List[str]
+        The list of dependencies.
+
+    """
+    return ["hcp_ya_confounds_cat.py"]
+
+
 @register_datagrabber
 class HCP_YA_Concatenated(MultipleHCP):
     """Concatenate all tasks and phase encoding directions for the HCP YA.
@@ -56,7 +68,7 @@ class HCP_YA_Concatenated(MultipleHCP):
         logger.info("Concatenating BOLD images and confounds")
         concat_img = nib.concat_images(all_bolds, axis=3)
         concat_confounds = pd.concat(
-            [pd.read_csv(conf) for conf in all_confounds]
+            [pd.read_csv(conf, sep="\t") for conf in all_confounds]
         )
         logger.info("Saving concatenated BOLD images and confounds")
         tmpdir = WorkDirManager().get_element_tempdir(prefix="hcp_ya_concat")
