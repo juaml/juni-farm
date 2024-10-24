@@ -184,7 +184,7 @@ class HCPAgingCATConfounds(PatternDataladDataGrabber):
         # Resting task
         if "REST" in task:
             new_task = f"rfMRI{task}"
-            new_phase_encoding = f"{phase_encoding}hp2000clean"
+            new_phase_encoding = f"{phase_encoding}_hp0_clean"
         else:
             new_task = f"tfMRI{task}"
             new_phase_encoding = phase_encoding
