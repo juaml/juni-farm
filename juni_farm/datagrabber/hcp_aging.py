@@ -1,6 +1,6 @@
 """Provide a datagrabber for the HCP Aging dataset."""
 
-# Authors: Leonard Sasse <l.sasse@fz-juelich.de>
+# Authors: Leonard Sasse <l.sasse@fz-juelich.de>, Jean-Philippe Kroell <j.kroell@fz-juelich.de>
 # License: AGPL
 
 from itertools import product
