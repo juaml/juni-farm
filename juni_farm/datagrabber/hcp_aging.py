@@ -10,6 +10,7 @@ from junifer.datagrabber import (
     DataladDataGrabber,
     HCP1200,
     MultipleDataGrabber,
+    PatternDataGrabber,
     PatternDataladDataGrabber,
 )
 from junifer.api.decorators import register_datagrabber
