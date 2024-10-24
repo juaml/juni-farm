@@ -1,4 +1,4 @@
-"""Provide a datagrabber for the HCP Aging dataset."""
+"""Provide a datagrabber for the HCP Aging dataset and its confounds."""
 
 # Authors: Leonard Sasse <l.sasse@fz-juelich.de>, Jean-Philippe Kroell <j.kroell@fz-juelich.de>
 # License: AGPL
@@ -254,7 +254,8 @@ class HCPAging(PatternDataGrabber):
                 "{subject}_V1_MR/MNINonLinear/"
                 "Results/{task}_{phase_encoding}/"
                 "{task}_{phase_encoding}_hp0_clean.nii.gz"
-                )}
+                ),
+                "space": "MNI152NLin6Asym"}
         }
         types = list(patterns.keys())
 
