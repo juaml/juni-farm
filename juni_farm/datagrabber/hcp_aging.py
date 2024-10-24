@@ -6,10 +6,13 @@
 from itertools import product
 from pathlib import Path
 from typing import Dict, List, Union
-
-from junifer.datagrabber.datalad_base import DataladDataGrabber
+from junifer.datagrabber import (
+    DataladDataGrabber,
+    HCP1200,
+    MultipleDataGrabber,
+    PatternDataladDataGrabber,
+)
 from junifer.api.decorators import register_datagrabber
-from junifer.datagrabber import PatternDataGrabber
 from junifer.utils import raise_error
 
 def get_cat_to_fmriprep_mapping():
