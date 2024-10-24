@@ -415,10 +415,6 @@ class MultipleHCP(MultipleDataGrabber):
     phase_encodings : {"AP", "PA"} or list of the options, optional
         HCP phase encoding directions. If None, both will be used
         (default None).
-    ica_fix : bool, optional
-        Whether to retrieve data that was processed with ICA+FIX.
-        Only "REST1" and "REST2" tasks are available with ICA+FIX (default
-        False).
     **kwargs
         Keyword arguments passed to superclass.
 
@@ -428,7 +424,6 @@ class MultipleHCP(MultipleDataGrabber):
         self,
         tasks: Union[str, List[str], None] = None,
         phase_encodings: Union[str, List[str], None] = None,
-        ica_fix: bool = False,
         **kwargs,
     ):
         """Initialise class."""
@@ -440,7 +435,6 @@ class MultipleHCP(MultipleDataGrabber):
             dg1 = DataladHCPAging(
                 tasks=tasks,
                 phase_encodings=phase_encodings,
-                ica_fix=ica_fix,
                 **kwargs,
             )
             kwargs["partial_pattern_ok"] = True
