@@ -355,13 +355,19 @@ class HCPAging(PatternDataGrabber):
             for x in self.datadir.iterdir()
             if "V1_MR" in x.name
         ]
+        elems = []
+        for subject, task, phase_encoding in product(
+            subjects, self.tasks, self.phase_encodings
+        ):
+            # for task sessions only PA phase encoding exists, so filter out
+            # all task data that is AP here
+            if "REST" not in task and phase_encoding == "AP":
+                continue
 
-        return [
-            (sub, task, phase_encoding)
-            for sub, task, phase_encoding in product(
-                subjects, self.tasks, self.phase_encodings
-            )
-        ]
+            elems.append((subject, task, phase_encoding))
+
+        return elems
+
 
     @property
     def skip_file_check(self) -> bool:
