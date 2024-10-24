@@ -249,11 +249,12 @@ class HCPAging(PatternDataGrabber):
 
         all_tasks = ["REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"]
         patterns = {
-            "BOLD": (
+            "BOLD": {
+                "pattern": (
                 "{subject}_V1_MR/MNINonLinear/"
                 "Results/{task}_{phase_encoding}/"
                 "{task}_{phase_encoding}_hp0_clean.nii.gz"
-            )
+                )}
         }
         types = list(patterns.keys())
 
