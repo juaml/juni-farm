@@ -212,12 +212,12 @@ class HCPAgingCATConfounds(PatternDataladDataGrabber):
         for subject, task, phase_encoding in product(
             subjects, self.tasks, self.phase_encodings
         ):
-            # for task sessions only PA phase encoding exists, so filter out
-            # all task data that is AP here
-            if "REST" not in task and phase_encoding == "AP":
-                continue
+        # for task sessions only PA phase encoding exists, so filter out
+        # all task data that is AP here
+        if "REST" not in task and phase_encoding == "AP":
+            continue
 
-            elems.append((subject, task, phase_encoding))
+        elems.append((subject, task, phase_encoding))
 
         return elems
 
