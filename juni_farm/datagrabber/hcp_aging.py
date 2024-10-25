@@ -415,7 +415,7 @@ class DataladHCPAging(DataladDataGrabber, HCPAging):
         )
 
 @register_datagrabber
-class MultipleHCP(MultipleDataGrabber):
+class MultipleHCPAging(MultipleDataGrabber):
     """Concrete implementation for HCP Aging data confounds.
 
     Parameters
@@ -460,7 +460,7 @@ class MultipleHCP(MultipleDataGrabber):
 
 
 if __name__ == "__main__":
-    with MultipleHCP() as dg:
+    with MultipleHCPAging() as dg:
         elems = dg.get_elements()
         test_data = dg[elems[0]]
         print(test_data)
