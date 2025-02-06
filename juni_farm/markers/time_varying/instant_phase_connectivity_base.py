@@ -60,7 +60,7 @@ class InstantPhaseConnectivityBase(BaseMarker):
 
     _MARKER_INOUT_MAPPINGS: ClassVar[MarkerInOutMappings] = {
         "BOLD": {
-            "functional_connectivity": "timeseries_2d",
+            "fc": "timeseries_2d",
         },
     }
 
