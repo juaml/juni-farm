@@ -1,6 +1,6 @@
-"""Provide a datagrabber for the HCP Aging dataset and its confounds."""
+"""Provide a datagrabber for CAT-processed confounds in the HCP dataset."""
 
-# Authors: Leonard Sasse <l.sasse@fz-juelich.de>, Jean-Philippe Kroell <j.kroell@fz-juelich.de>
+# Authors: Leonard Sasse <l.sasse@fz-juelich.de>
 # License: AGPL
 
 from itertools import product
@@ -8,15 +8,16 @@ from pathlib import Path
 from typing import Dict, List, Union
 import warnings
 
+from junifer.api.decorators import register_datagrabber
+from junifer.datagrabber import PatternDataGrabber
 from junifer.datagrabber import (
     DataladDataGrabber,
     HCP1200,
     MultipleDataGrabber,
-    PatternDataGrabber,
     PatternDataladDataGrabber,
 )
-from junifer.api.decorators import register_datagrabber
 from junifer.utils import raise_error
+
 
 def get_cat_to_fmriprep_mapping():
     """Map variables in CAT output to fmriprep variables.
@@ -55,8 +56,9 @@ def get_cat_to_fmriprep_mapping():
 
     return mapping
 
+
 @register_datagrabber
-class HCPAgingCATConfounds(PatternDataladDataGrabber):
+class HCPCATConfounds(PatternDataladDataGrabber):
     """Concrete implementation for CAT-processed HCP confounds.
 
     Parameters
@@ -184,7 +186,7 @@ class HCPAgingCATConfounds(PatternDataladDataGrabber):
         # Resting task
         if "REST" in task:
             new_task = f"rfMRI{task}"
-            new_phase_encoding = f"{phase_encoding}_hp0_clean"
+            new_phase_encoding = f"{phase_encoding}hp2000clean"
         else:
             new_task = f"tfMRI{task}"
             new_phase_encoding = phase_encoding
@@ -212,15 +214,9 @@ class HCPAgingCATConfounds(PatternDataladDataGrabber):
         for subject, task, phase_encoding in product(
             subjects, self.tasks, self.phase_encodings
         ):
-            # for task sessions only PA phase encoding exists, so filter out
-            # all task data that is AP here
-            if "REST" not in task and phase_encoding == "AP":
-                continue
-    
             elems.append((subject, task, phase_encoding))
 
         return elems
-
 
 @register_datagrabber
 class HCPAging(PatternDataGrabber):
@@ -254,13 +250,11 @@ class HCPAging(PatternDataGrabber):
 
         all_tasks = ["REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"]
         patterns = {
-            "BOLD": {
-                "pattern": (
+            "BOLD": (
                 "{subject}_V1_MR/MNINonLinear/"
                 "Results/{task}_{phase_encoding}/"
                 "{task}_{phase_encoding}_hp0_clean.nii.gz"
-                ),
-                "space": "MNI152NLin6Asym"}
+            )
         }
         types = list(patterns.keys())
 
@@ -355,25 +349,18 @@ class HCPAging(PatternDataGrabber):
             for x in self.datadir.iterdir()
             if "V1_MR" in x.name
         ]
-        elems = []
-        for subject, task, phase_encoding in product(
-            subjects, self.tasks, self.phase_encodings
-        ):
-            # for task sessions only PA phase encoding exists, so filter out
-            # all task data that is AP here
-            if "REST" not in task and phase_encoding == "AP":
-                continue
 
-            elems.append((subject, task, phase_encoding))
-
-        return elems
-
+        return [
+            (sub, task, phase_encoding)
+            for sub, task, phase_encoding in product(
+                subjects, self.tasks, self.phase_encodings
+            )
+        ]
 
     @property
     def skip_file_check(self) -> bool:
         """Skip file check existence."""
         return True
-
 
 @register_datagrabber
 class DataladHCPAging(DataladDataGrabber, HCPAging):
@@ -414,53 +401,9 @@ class DataladHCPAging(DataladDataGrabber, HCPAging):
             uri=uri,
         )
 
-@register_datagrabber
-class MultipleHCPAging(MultipleDataGrabber):
-    """Concrete implementation for HCP Aging data confounds.
-
-    Parameters
-    ----------
-    datadir : str or Path, optional
-        The directory where the datalad dataset will be cloned.
-    tasks : {"REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"} or list of the options, optional
-        HCP task sessions. If None, all available task sessions are selected
-        (default None).
-    phase_encodings : {"AP", "PA"} or list of the options, optional
-        HCP phase encoding directions. If None, both will be used
-        (default None).
-    **kwargs
-        Keyword arguments passed to superclass.
-
-    """
-
-    def __init__(
-        self,
-        tasks: Union[str, List[str], None] = None,
-        phase_encodings: Union[str, List[str], None] = None,
-        **kwargs,
-    ):
-        """Initialise class."""
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", module="junifer.datagrabber.pattern_validation_mixin"
-            )
-
-            dg1 = DataladHCPAging(
-                tasks=tasks,
-                phase_encodings=phase_encodings,
-                **kwargs,
-            )
-            kwargs["partial_pattern_ok"] = True
-            dg2 = HCPAgingCATConfounds(**kwargs)
-        super().__init__(
-            datagrabbers=[dg1, dg2],
-            **kwargs,
-        )
-
-
 
 if __name__ == "__main__":
-    with MultipleHCPAging() as dg:
+    with DataladHCPAging() as dg:
         elems = dg.get_elements()
         test_data = dg[elems[0]]
         print(test_data)
