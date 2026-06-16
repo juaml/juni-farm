@@ -1,6 +1,7 @@
 """Provide a datagrabber for the HCP Aging dataset."""
 
 # Authors: Leonard Sasse <l.sasse@fz-juelich.de>
+#          Federico Raimondo <f.raimondo@fz-juelich.de>
 # License: AGPL
 
 from itertools import product
@@ -45,11 +46,38 @@ class HCPAging(PatternDataGrabber):
 
         all_tasks = ["REST1", "REST2", "CARIT", "FACENAME", "VISMOTOR"]
         patterns = {
-            "BOLD": (
-                "{subject}_V1_MR/MNINonLinear/"
-                "Results/{task}_{phase_encoding}/"
-                "{task}_{phase_encoding}_hp0_clean.nii.gz"
-            )
+            "BOLD": {
+                "pattern": (
+                    "{subject}_V1_MR/MNINonLinear/"
+                    "Results/{task}_{phase_encoding}/"
+                    "{task}_{phase_encoding}_hp0_clean.nii.gz"
+                ),
+                "space": "MNI152NLin6Asym",
+            },
+                "T1w": {
+                "pattern": "{subject}_V1_MR/T1w/T1w_acpc_dc_restore.nii.gz",
+                "space": "native",
+            },
+            "Warp": [
+                {
+                    "pattern": (
+                        "{subject}_V1_MR/MNINonLinear/xfms/"
+                        "standard2acpc_dc.nii.gz"
+                    ),
+                    "src": "MNI152NLin6Asym",
+                    "dst": "native",
+                    "warper": "fsl",
+                },
+                {
+                    "pattern": (
+                        "{subject}_V1_MR/MNINonLinear/xfms/"
+                        "acpc_dc2standard.nii.gz"
+                    ),
+                    "src": "native",
+                    "dst": "MNI152NLin6Asym",
+                    "warper": "fsl",
+                },
+            ],
         }
         types = list(patterns.keys())
 
