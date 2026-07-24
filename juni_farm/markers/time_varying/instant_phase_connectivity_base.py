@@ -4,15 +4,18 @@
 # License: AGPL
 
 from abc import abstractmethod
-from typing import Any, ClassVar, Optional, Union
+from typing import Annotated, Any, ClassVar, Optional
 
 import numpy as np
 from nilearn import signal as nil_signal
+from pydantic import BeforeValidator, PositiveFloat, PositiveInt
 from scipy import signal, stats
 
+from junifer.datagrabber import DataType
 from junifer.markers import BaseMarker
+from junifer.storage import StorageType
 from junifer.typing import Dependencies, MarkerInOutMappings
-from junifer.utils import logger, raise_error
+from junifer.utils import ensure_list_or_none, logger, raise_error
 
 
 __all__ = ["InstantPhaseConnectivityBase"]
@@ -50,8 +53,6 @@ class InstantPhaseConnectivityBase(BaseMarker):
     Raises
     ------
     ValueError
-        If ``highpass`` is not positive or zero or
-        if ``lowpass`` is not positive or
         if ``highpass`` is higher than ``lowpass`` or
 
     """
@@ -59,34 +60,24 @@ class InstantPhaseConnectivityBase(BaseMarker):
     _DEPENDENCIES: ClassVar[Dependencies] = {"nilearn", "scipy"}
 
     _MARKER_INOUT_MAPPINGS: ClassVar[MarkerInOutMappings] = {
-        "BOLD": {
-            "fc": "timeseries_2d",
+        DataType.BOLD: {
+            "fc": StorageType.Timeseries2D,
         },
     }
 
-    def __init__(
-        self,
-        highpass: float,
-        lowpass: float,
-        order: int = 5,
-        masks: Union[str, dict, list[Union[dict, str]], None] = None,
-        tr: Optional[float] = None,
-        name: Optional[str] = None,
-    ) -> None:
-        if highpass < 0:
-            raise_error("Highpass must be positive or 0")
-        if lowpass <= 0:
-            raise_error("Lowpass must be positive")
-        if order <= 0:
-            raise_error("Order must be positive")
-        if highpass >= lowpass:
+    highpass: PositiveFloat = 0.01
+    lowpass: PositiveFloat = 0.1
+    order: PositiveInt = 5
+    masks: Annotated[
+        dict | str | list[dict | str] | None,
+        BeforeValidator(ensure_list_or_none),
+    ] = None
+    tr: PositiveFloat | None = None
+
+    def validate_marker_params(self) -> None:
+        """Validate marker parameters."""
+        if self.highpass >= self.lowpass:
             raise_error("Highpass must be lower than lowpass")
-        self.highpass = highpass
-        self.lowpass = lowpass
-        self.order = order
-        self.tr = tr
-        self.masks = masks
-        super().__init__(on="BOLD", name=name)
 
     @abstractmethod
     def aggregate(

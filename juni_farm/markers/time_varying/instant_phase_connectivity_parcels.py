@@ -3,10 +3,13 @@
 # Authors: Federico Raimondo <f.raimondo@fz-juelich.de>
 # License: AGPL
 
-from typing import Any, Optional, Union
+from typing import Annotated, Any, Optional
+
+from pydantic import BeforeValidator
 
 from junifer.api.decorators import register_marker
 from junifer.markers import ParcelAggregation
+from junifer.utils import ensure_list
 
 from .instant_phase_connectivity_base import InstantPhaseConnectivityBase
 
@@ -50,31 +53,11 @@ class InstantPhaseConnectivityParcels(InstantPhaseConnectivityBase):
     Raises
     ------
     ValueError
-        If ``highpass`` is not positive or zero or
-        if ``lowpass`` is not positive or
         if ``highpass`` is higher than ``lowpass`` or
 
     """
 
-    def __init__(
-        self,
-        parcellation: Union[str, list[str]],
-        highpass: float,
-        lowpass: float,
-        order: int = 5,
-        masks: Union[str, dict, list[Union[dict, str]], None] = None,
-        tr: Optional[float] = None,
-        name: Optional[str] = None,
-    ) -> None:
-        self.parcellation = parcellation
-        super().__init__(
-            highpass=highpass,
-            lowpass=lowpass,
-            order=order,
-            masks=masks,
-            tr=tr,
-            name=name,
-        )
+    parcellation: Annotated[str | list[str], BeforeValidator(ensure_list)]
 
     def aggregate(
         self, input: dict[str, Any], extra_input: Optional[dict] = None
