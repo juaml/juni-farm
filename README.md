@@ -26,3 +26,8 @@ to this list:
 - [HCP Aging](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_a.py) in `juni-farm/datagrabber/hcp_a.py`: `HCPA` and `DataladHCPA`
 - [HCP Development](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_d.py) in `juni-farm/datagrabber/hcp_d.py`: `HCPD` and `DataladHCPD`
 - [HCP Early Psychosis](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_ep.py) in `juni-farm/datagrabber/hcp_ep.py`: `HCPEP` and `JuselessDataladHCPEP`
+- fMRIPrep 25.1.4 derivatives of the resting-state data (BOLD in MNI152NLin2009cAsym, anatomical data in native space or MNI152NLin2009cAsym, with the warps between them):
+  - [HCP1200](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp1200_fmriprep.py) in `juni-farm/datagrabber/hcp1200_fmriprep.py`: `HCP1200fMRIPrep` and `DataladHCP1200fMRIPrep`
+  - [HCP Aging](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_a_fmriprep.py) in `juni-farm/datagrabber/hcp_a_fmriprep.py`: `HCPAfMRIPrep` and `DataladHCPAfMRIPrep`
+  - [HCP Development](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_d_fmriprep.py) in `juni-farm/datagrabber/hcp_d_fmriprep.py`: `HCPDfMRIPrep` and `DataladHCPDfMRIPrep`
+  - [HCP Early Psychosis](https://github.com/juaml/juni-farm/blob/main/juni_farm/datagrabber/hcp_ep_fmriprep.py) in `juni-farm/datagrabber/hcp_ep_fmriprep.py`: `HCPEPfMRIPrep` and `DataladHCPEPfMRIPrep`
