@@ -188,9 +188,13 @@ class MaskAggregation(BaseMarker):
             extra_input=extra_input,
         )
 
-        # Initialize masker
+        # Initialize masker; no reports, as they are not used and computing
+        # their data at fit time resamples the whole input data (as
+        # target_affine is set)
         logger.debug("Masking")
-        masker = NiftiMasker(mask_img, target_affine=t_input_img.affine)
+        masker = NiftiMasker(
+            mask_img, target_affine=t_input_img.affine, reports=False
+        )
         # Mask the input data
         data = masker.fit_transform(t_input_img)
 
