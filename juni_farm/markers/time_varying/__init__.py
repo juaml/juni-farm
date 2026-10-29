@@ -1,1 +1,2 @@
 from .instant_phase_connectivity_parcels import InstantPhaseConnectivityParcels
+from .instant_phase_connectivity_spheres import InstantPhaseConnectivitySpheres
